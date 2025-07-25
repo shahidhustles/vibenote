@@ -1,0 +1,187 @@
+"use client";
+
+import {
+  ChevronUp,
+  CreditCard,
+  DraftingCompass,
+  Home,
+  Library,
+  LogOut,
+  PlusCircle,
+  User2,
+} from "lucide-react";
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import { Separator } from "./ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { SignOutButton, useUser } from "@clerk/nextjs";
+import { Skeleton } from "./ui/skeleton";
+import Image from "next/image";
+import Link from "next/link";
+
+// Menu items.
+const items = [
+  {
+    title: "Home",
+    url: "#",
+    icon: Home,
+  },
+  {
+    title: "New Chat",
+    url: "#",
+    icon: PlusCircle,
+  },
+  {
+    title: "Library",
+    url: "#",
+    icon: Library,
+  },
+  {
+    title: "Fibonacci Videos",
+    url: "#",
+    icon: DraftingCompass,
+  },
+];
+export function AppSidebar() {
+  const { user, isLoaded } = useUser();
+  return (
+    <Sidebar>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xl font-semibold px-2 py-3">
+            Vibe Note
+          </SidebarGroupLabel>
+          <Separator className="my-2 " />
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-2">
+              {items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild className="h-8 text-base">
+                    <Link href={item.url} className="flex items-center gap-3">
+                      <item.icon className="h-5 w-5" />
+                      <span className="font-medium">{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <Separator className="my-2 w-2" />
+        <SidebarGroup>
+          {/* Prev Chats will come here  */}
+          {/* this are dummy :  */}
+          <SidebarGroupLabel className="text-sm font-medium px-2 py-2 text-muted-foreground">
+            Previous Chats
+          </SidebarGroupLabel>
+          <SidebarGroupContent className="px-2">
+            <SidebarMenu className="space-y-1">
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="h-8 text-sm">
+                  <Link href="#" className="flex items-center gap-3">
+                    <span className="font-medium truncate">
+                      React Hooks Explained
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="h-8 text-sm">
+                  <Link href="#" className="flex items-center gap-3">
+                    <span className="font-medium truncate">
+                      JavaScript ES6 Features
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="h-8 text-sm">
+                  <Link href="#" className="flex items-center gap-3">
+                    <span className="font-medium truncate">
+                      CSS Grid vs Flexbox
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="h-8 text-sm">
+                  <Link href="#" className="flex items-center gap-3">
+                    <span className="font-medium truncate">
+                      TypeScript Best Practices
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className="h-8 text-sm">
+                  <Link href="#" className="flex items-center gap-3">
+                    <span className="font-medium truncate">
+                      API Design Patterns
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+      <SidebarFooter className="p-4">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton className="h-12 text-base">
+                  {isLoaded ? (
+                    <>
+                      <Image
+                        src={user!.imageUrl}
+                        alt="ProfilePic"
+                        width={32}
+                        height={32}
+                        className="rounded-full"
+                      />
+                      <span className="font-medium truncate">
+                        {user?.firstName} {user?.lastName}
+                      </span>
+                      <ChevronUp className="ml-auto h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      <Skeleton className="h-8 w-8 rounded-full" />
+                      <Skeleton className="h-4 w-20" />
+                      <ChevronUp className="ml-auto h-4 w-4" />
+                    </>
+                  )}
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="right"
+                className="w-[--radix-popper-anchor-width]"
+              >
+                <DropdownMenuItem className="h-10 text-base">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <SignOutButton />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
+  );
+}
