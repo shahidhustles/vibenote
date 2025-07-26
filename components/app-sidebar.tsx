@@ -2,13 +2,11 @@
 
 import {
   ChevronUp,
-  CreditCard,
   DraftingCompass,
   Home,
   Library,
   LogOut,
   PlusCircle,
-  User2,
 } from "lucide-react";
 
 import {
@@ -73,7 +71,9 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="h-8 text-base">
                     <Link href={item.url} className="flex items-center gap-3">
-                      <item.icon className="h-5 w-5" />
+                      <div className="p-1.5 rounded-md bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20">
+                        <item.icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      </div>
                       <span className="font-medium">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
