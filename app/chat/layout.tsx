@@ -11,7 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider className={hyperlegible.className}>
       <AppSidebar />
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col bg-gray-50">
         <SidebarTrigger />
         <div className="flex-1">{children}</div>
       </main>

@@ -31,32 +31,50 @@ import { SignOutButton, useUser } from "@clerk/nextjs";
 import { Skeleton } from "./ui/skeleton";
 import Image from "next/image";
 import Link from "next/link";
+import { createNewChat } from "@/features/basic-functionality/actions/create-new-chat";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 
-// Menu items.
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "New Chat",
-    url: "#",
-    icon: PlusCircle,
-  },
-  {
-    title: "Library",
-    url: "#",
-    icon: Library,
-  },
-  {
-    title: "Fibonacci Videos",
-    url: "#",
-    icon: DraftingCompass,
-  },
-];
 export function AppSidebar() {
   const { user, isLoaded } = useUser();
+  const [isPending, startTransition] = useTransition();
+
+  const router = useRouter();
+
+  const handleNewChatClick = () => {
+    startTransition(async () => {
+      const url = await createNewChat({
+        userId: user!.id,
+        title: "New Learning",
+      });
+      router.push(url);
+    });
+  };
+
+  // Menu items.
+  const items = [
+    {
+      title: "Home",
+      icon: Home,
+      url: "/chat",
+    },
+    {
+      title: "New Chat",
+      icon: PlusCircle,
+      url: "#",
+      onclick: handleNewChatClick,
+    },
+    {
+      title: "Library",
+      icon: Library,
+      url: "#",
+    },
+    {
+      title: "Fibonacci Videos",
+      icon: DraftingCompass,
+      url: "#",
+    },
+  ];
   return (
     <Sidebar>
       <SidebarContent>
@@ -69,10 +87,21 @@ export function AppSidebar() {
             <SidebarMenu className="space-y-2">
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="h-8 text-base">
-                    <Link href={item.url} className="flex items-center gap-3">
-                      <div className="p-1.5 rounded-md bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20">
-                        <item.icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <SidebarMenuButton
+                    asChild
+                    className={`h-8 text-base ${isPending && item.title === "New Chat" ? "opacity-50" : ""}`}
+                  >
+                    <Link
+                      href={item.url}
+                      onClick={item.onclick}
+                      className="flex items-center gap-3"
+                    >
+                      <div className="p-1.5 rounded-md bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 hover:from-purple-600 hover:via-blue-600 hover:to-cyan-600 dark:from-blue-900/20 dark:to-purple-900/20">
+                        {isPending && item.title === "New Chat" ? (
+                          <div className="h-4 w-4 border-2 border-white dark:border-blue-400 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <item.icon className="h-4 w-4 text-white dark:text-blue-400" />
+                        )}
                       </div>
                       <span className="font-medium">{item.title}</span>
                     </Link>

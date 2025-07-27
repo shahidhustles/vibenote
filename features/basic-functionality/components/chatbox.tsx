@@ -1,0 +1,229 @@
+"use client";
+
+import { useChat } from "@ai-sdk/react";
+import { Button } from "@/components/ui/button";
+import { Paperclip, ChevronDown, Send, BookOpen } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+
+export default function Chatbox() {
+  const { messages, input, handleInputChange, handleSubmit } = useChat({});
+  const [selectedModel, setSelectedModel] = useState("Gemini 2.5 Flash");
+  const formRef = useRef<HTMLFormElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const models = [
+    { value: "gpt-4", label: "GPT-4" },
+    { value: "gpt-3.5", label: "GPT-3.5" },
+    { value: "claude", label: "Claude" },
+    { value: "gemini", label: "Gemini 2.5 Flash" },
+  ];
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (input.trim() && formRef.current) {
+        formRef.current.requestSubmit();
+      }
+    }
+  };
+
+  // Always show hero section layout with messages above if they exist
+  return (
+    <div className="w-full h-screen bg-gray-50 flex flex-col">
+      {/* Hero Content and Messages */}
+      <div className="flex-1 flex flex-col px-4 py-6 overflow-auto">
+        {/* Show hero content only when no messages */}
+        {messages.length === 0 && (
+          <div
+            className="flex flex-col items-center justify-center text-center"
+            style={{ minHeight: "25vh" }}
+          >
+            {/* Icon */}
+            <div className="mb-6">
+              <BookOpen className="w-12 h-12 text-black" />
+            </div>
+
+            {/* Heading */}
+            <h1 className="text-2xl font-semibold text-gray-900 mb-3">
+              New Learning Tab
+            </h1>
+
+            {/* Description */}
+            <p className="text-gray-600 max-w-lg leading-relaxed mb-8 text-center">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+              enim ad minim veniam, quis nostrud exercitation.
+            </p>
+          </div>
+        )}
+
+        {/* Messages when they exist */}
+        {messages.length > 0 && (
+          <div className="w-full max-w-4xl mx-auto space-y-4 pt-6">
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[80%] p-4 rounded-xl ${
+                    message.role === "user"
+                      ? "bg-blue-50 text-blue-900 border border-blue-200"
+                      : "bg-purple-50 border-dashed border-black-200 shadow-sm text-purple-900"
+                  }`}
+                >
+                  {message.role === "user" ? (
+                    <p className="text-sm leading-relaxed">{message.content}</p>
+                  ) : (
+                    <div className="text-md leading-relaxed prose prose-sm max-w-none">
+                      <ReactMarkdown
+                        components={{
+                          p: ({ children }) => (
+                            <p className="mb-2 last:mb-0">{children}</p>
+                          ),
+                          strong: ({ children }) => (
+                            <strong className="font-semibold">
+                              {children}
+                            </strong>
+                          ),
+                          em: ({ children }) => (
+                            <em className="italic">{children}</em>
+                          ),
+                          ul: ({ children }) => (
+                            <ul className="list-disc list-inside mb-2 space-y-1">
+                              {children}
+                            </ul>
+                          ),
+                          ol: ({ children }) => (
+                            <ol className="list-decimal list-inside mb-2 space-y-1">
+                              {children}
+                            </ol>
+                          ),
+                          li: ({ children }) => (
+                            <li className="ml-2">{children}</li>
+                          ),
+                          h1: ({ children }) => (
+                            <h1 className="text-lg font-semibold mb-2">
+                              {children}
+                            </h1>
+                          ),
+                          h2: ({ children }) => (
+                            <h2 className="text-base font-semibold mb-2">
+                              {children}
+                            </h2>
+                          ),
+                          h3: ({ children }) => (
+                            <h3 className="text-sm font-semibold mb-1">
+                              {children}
+                            </h3>
+                          ),
+                          code: ({ children }) => (
+                            <code className="bg-purple-100 px-1 py-0.5 rounded text-xs font-mono">
+                              {children}
+                            </code>
+                          ),
+                          pre: ({ children }) => (
+                            <pre className="bg-purple-100 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+                              {children}
+                            </pre>
+                          ),
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            {/* Invisible div to scroll to */}
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </div>
+
+      {/* Chat Input Section - Always shown */}
+      <div className="px-4 pb-8">
+        <div className="max-w-4xl mx-auto">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+            <div className="relative">
+              <textarea
+                name="prompt"
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder={
+                  messages.length === 0
+                    ? "Ask me anything to start learning..."
+                    : "Continue the conversation..."
+                }
+                className="w-full h-32 p-4 pr-16 pt-12 rounded-xl border border-gray-200 bg-white shadow-lg resize-none text-base placeholder:text-gray-400 focus:border-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all"
+              />
+
+              {/* Model Dropdown */}
+              <div className="absolute top-3 left-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2 text-xs text-gray-600 hover:bg-gray-100 border border-gray-200 rounded-md"
+                    >
+                      {selectedModel}
+                      <ChevronDown className="w-3 h-3 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-32">
+                    {models.map((model) => (
+                      <DropdownMenuItem
+                        key={model.value}
+                        onClick={() => setSelectedModel(model.label)}
+                        className="text-sm"
+                      >
+                        {model.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              {/* Attachment Button */}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute bottom-3 right-12 w-8 h-8 hover:bg-gray-100"
+              >
+                <Paperclip className="w-4 h-4 text-gray-500" />
+              </Button>
+
+              {/* Send Button */}
+              <Button
+                type="submit"
+                disabled={!input.trim()}
+                size="icon"
+                className="absolute bottom-3 right-3 w-8 h-8 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 hover:from-purple-600 hover:via-blue-600 hover:to-cyan-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -88,7 +88,7 @@ const HeroText = () => {
               glow={true}
               className="rounded-lg"
             />
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group relative">
+            <div className="bg-white min-h-52 rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group relative">
               <div className="flex flex-col items-start space-y-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                   <svg
@@ -128,7 +128,7 @@ const HeroText = () => {
               glow={true}
               className="rounded-lg"
             />
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group relative">
+            <div className="bg-white min-h-52 rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group relative">
               <div className="flex flex-col items-start space-y-4">
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
                   <svg
@@ -167,7 +167,7 @@ const HeroText = () => {
               glow={true}
               className="rounded-lg"
             />
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group relative">
+            <div className="bg-white min-h-52 rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group relative">
               <div className="flex flex-col items-start space-y-4">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
                   <svg
@@ -206,7 +206,7 @@ const HeroText = () => {
               glow={true}
               className="rounded-lg"
             />
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group relative">
+            <div className="bg-white min-h-52 rounded-lg p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow cursor-pointer group relative">
               <div className="flex flex-col items-start space-y-4">
                 <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
                   <svg
