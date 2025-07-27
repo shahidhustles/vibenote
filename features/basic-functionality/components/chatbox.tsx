@@ -11,9 +11,34 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import { Id } from "@/convex/_generated/dataModel";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Chatbox() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat({});
+type ChatBoxType = {
+  chatId: Id<"chats">;
+};
+
+export default function Chatbox({ chatId }: ChatBoxType) {
+  const persistedMessages = useQuery(api.chats.getChatMessages, { chatId });
+  const isLoadingMessages = persistedMessages === undefined;
+
+  // Transform Convex messages to useChat format
+  const initialMessages =
+    persistedMessages?.map((msg) => ({
+      id: msg._id,
+      role: msg.role,
+      content: msg.content,
+    })) || [];
+
+  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+    useChat({
+      headers: {
+        id: chatId,
+      },
+      initialMessages,
+    });
   const [selectedModel, setSelectedModel] = useState("Gemini 2.5 Flash");
   const formRef = useRef<HTMLFormElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -44,8 +69,26 @@ export default function Chatbox() {
     <div className="w-full h-screen bg-gray-50 flex flex-col">
       {/* Hero Content and Messages */}
       <div className="flex-1 flex flex-col px-4 py-6 overflow-auto">
-        {/* Show hero content only when no messages */}
-        {messages.length === 0 && (
+        {/* Loading state for persisted messages */}
+        {isLoadingMessages && (
+          <div className="w-full max-w-4xl mx-auto space-y-4 pt-6">
+            {/* Skeleton messages */}
+            {[...Array(4)].map((_, index) => (
+              <div
+                key={index}
+                className={`flex ${index % 2 === 0 ? "justify-end" : "justify-start"}`}
+              >
+                <div className="max-w-[80%] p-2 rounded-xl">
+                  <Skeleton className="h-6 w-[600px] mb-1" />
+                  <Skeleton className="h-6 w-[400px] mb-1" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Show hero content only when no messages and not loading */}
+        {!isLoadingMessages && messages.length === 0 && (
           <div
             className="flex flex-col items-center justify-center text-center"
             style={{ minHeight: "25vh" }}
@@ -70,7 +113,7 @@ export default function Chatbox() {
         )}
 
         {/* Messages when they exist */}
-        {messages.length > 0 && (
+        {!isLoadingMessages && messages.length > 0 && (
           <div className="w-full max-w-4xl mx-auto space-y-4 pt-6">
             {messages.map((message) => (
               <div
@@ -80,14 +123,14 @@ export default function Chatbox() {
                 }`}
               >
                 <div
-                  className={`max-w-[80%] p-4 rounded-xl ${
+                  className={`max-w-[80%] p-3 ${
                     message.role === "user"
-                      ? "bg-blue-50 text-blue-900 border border-blue-200"
-                      : "bg-purple-50 border-dashed border-black-200 shadow-sm text-purple-900"
+                      ? "bg-blue-500 text-white rounded-t-2xl rounded-bl-2xl rounded-br-md ml-auto"
+                      : "bg-white border border-gray-200 shadow-sm text-gray-900 rounded-t-2xl rounded-br-2xl rounded-bl-md"
                   }`}
                 >
                   {message.role === "user" ? (
-                    <p className="text-sm leading-relaxed">{message.content}</p>
+                    <p className="text-md leading-relaxed">{message.content}</p>
                   ) : (
                     <div className="text-md leading-relaxed prose prose-sm max-w-none">
                       <ReactMarkdown
@@ -132,12 +175,12 @@ export default function Chatbox() {
                             </h3>
                           ),
                           code: ({ children }) => (
-                            <code className="bg-purple-100 px-1 py-0.5 rounded text-xs font-mono">
+                            <code className="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono">
                               {children}
                             </code>
                           ),
                           pre: ({ children }) => (
-                            <pre className="bg-purple-100 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
+                            <pre className="bg-gray-100 p-2 rounded text-xs font-mono overflow-x-auto mb-2">
                               {children}
                             </pre>
                           ),
@@ -150,6 +193,31 @@ export default function Chatbox() {
                 </div>
               </div>
             ))}
+
+            {/* Loading message when AI is responding */}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="max-w-[80%] p-4 rounded-xl bg-gray-50 border-dashed border-black-200 shadow-sm text-purple-900">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                    </div>
+                    <span className="text-sm text-white">
+                      AI is thinking...
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Invisible div to scroll to */}
             <div ref={messagesEndRef} />
           </div>
@@ -166,12 +234,15 @@ export default function Chatbox() {
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
+                disabled={isLoading}
                 placeholder={
-                  messages.length === 0
-                    ? "Ask me anything to start learning..."
-                    : "Continue the conversation..."
+                  isLoading
+                    ? "AI is responding..."
+                    : messages.length === 0
+                      ? "Ask me anything to start learning..."
+                      : "Continue the conversation..."
                 }
-                className="w-full h-32 p-4 pr-16 pt-12 rounded-xl border border-gray-200 bg-white shadow-lg resize-none text-base placeholder:text-gray-400 focus:border-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all"
+                className="w-full h-32 p-4 pr-16 pt-12 rounded-xl border border-gray-200 bg-white shadow-lg resize-none text-base placeholder:text-gray-400 focus:border-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
 
               {/* Model Dropdown */}
@@ -214,7 +285,7 @@ export default function Chatbox() {
               {/* Send Button */}
               <Button
                 type="submit"
-                disabled={!input.trim()}
+                disabled={!input.trim() || isLoading}
                 size="icon"
                 className="absolute bottom-3 right-3 w-8 h-8 bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 hover:from-purple-600 hover:via-blue-600 hover:to-cyan-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >

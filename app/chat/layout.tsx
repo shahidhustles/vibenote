@@ -7,7 +7,13 @@ const hyperlegible = Atkinson_Hyperlegible({
   subsets: ["latin"],
 });
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  
+
   return (
     <SidebarProvider className={hyperlegible.className}>
       <AppSidebar />

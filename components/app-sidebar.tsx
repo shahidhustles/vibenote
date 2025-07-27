@@ -32,11 +32,15 @@ import { Skeleton } from "./ui/skeleton";
 import Image from "next/image";
 import Link from "next/link";
 import { createNewChat } from "@/features/basic-functionality/actions/create-new-chat";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export function AppSidebar() {
   const { user, isLoaded } = useUser();
+  const params = useParams();
+  const { id } = params;
   const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
@@ -50,6 +54,11 @@ export function AppSidebar() {
       router.push(url);
     });
   };
+
+  const recentChats = useQuery(
+    api.chats.getRecentChats,
+    user ? { userId: user.id } : "skip"
+  );
 
   // Menu items.
   const items = [
@@ -120,51 +129,38 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
             <SidebarMenu className="space-y-1">
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild className="h-8 text-sm">
-                  <Link href="#" className="flex items-center gap-3">
-                    <span className="font-medium truncate">
-                      React Hooks Explained
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild className="h-8 text-sm">
-                  <Link href="#" className="flex items-center gap-3">
-                    <span className="font-medium truncate">
-                      JavaScript ES6 Features
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild className="h-8 text-sm">
-                  <Link href="#" className="flex items-center gap-3">
-                    <span className="font-medium truncate">
-                      CSS Grid vs Flexbox
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild className="h-8 text-sm">
-                  <Link href="#" className="flex items-center gap-3">
-                    <span className="font-medium truncate">
-                      TypeScript Best Practices
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild className="h-8 text-sm">
-                  <Link href="#" className="flex items-center gap-3">
-                    <span className="font-medium truncate">
-                      API Design Patterns
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {recentChats === undefined
+                ? // Loading skeleton for recent chats
+                  Array.from({ length: 4 }).map((_, index) => (
+                    <SidebarMenuItem key={index}>
+                      <SidebarMenuButton className="h-12 text-sm">
+                        <div className="flex items-center gap-3 w-full">
+                          <Skeleton className="h-8 flex-1" />
+                        </div>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))
+                : recentChats?.map((chat) => (
+                    <SidebarMenuItem key={chat.createdAt}>
+                      <SidebarMenuButton
+                        asChild
+                        className={`h-8 text-sm ${
+                          id === chat._id
+                            ? "bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 text-white"
+                            : ""
+                        }`}
+                      >
+                        <Link
+                          href={chat._id}
+                          className="flex items-center gap-3"
+                        >
+                          <span className="font-medium truncate">
+                            {chat.title}
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
