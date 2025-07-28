@@ -2,13 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import QuizCard, { type QuizQuestion } from "./quiz-card";
-import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
 import { gsap } from "gsap";
 
 interface QuizContainerProps {
   questions: QuizQuestion[];
-  onReset: () => void;
+  onResultsShow?: (showingResults: boolean) => void;
 }
 
 type UserAnswer = {
@@ -18,13 +16,20 @@ type UserAnswer = {
   question: QuizQuestion;
 };
 
-const QuizContainer = ({ questions, onReset }: QuizContainerProps) => {
+const QuizContainer = ({ questions, onResultsShow }: QuizContainerProps) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [currentQuestionAnswered, setCurrentQuestionAnswered] = useState(false);
 
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // Notify parent when results are shown/hidden
+  useEffect(() => {
+    if (onResultsShow) {
+      onResultsShow(showResults);
+    }
+  }, [showResults, onResultsShow]);
 
   const handleAnswer = (
     selectedOption: "a" | "b" | "c" | "d",
@@ -153,22 +158,6 @@ const QuizContainer = ({ questions, onReset }: QuizContainerProps) => {
               onAnswer={handleAnswer}
             />
           </div>
-
-          {/* Next Button (optional manual advance) */}
-          {currentQuestionAnswered &&
-            currentQuestionIndex < questions.length - 1 && (
-              <div className="flex justify-center">
-                <Button
-                  onClick={() => {
-                    // Clear the auto-advance timer and advance immediately
-                    handleNextQuestion();
-                  }}
-                  className="bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 text-white"
-                >
-                  Next Question <ChevronRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            )}
         </>
       ) : (
         /* Results Summary */
@@ -249,17 +238,6 @@ const QuizContainer = ({ questions, onReset }: QuizContainerProps) => {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Reset Button */}
-          <div className="text-center">
-            <Button
-              onClick={onReset}
-              variant="outline"
-              className="bg-white hover:bg-gray-50"
-            >
-              Take Another Quiz
-            </Button>
           </div>
         </div>
       )}

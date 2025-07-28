@@ -20,7 +20,7 @@ export type QuizQuestion = {
 };
 
 export type QuizState = {
-  state: string;
+  state: "idle" | "loading" | "completed" | "error";
   toastNotification: string;
   quiz: QuizQuestion[];
   error?: string;
@@ -31,9 +31,10 @@ export const generateQuiz = async (
   formData: FormData
 ): Promise<QuizState> => {
   try {
+    // Set loading state immediately
     const newState: QuizState = {
       ...prevState,
-      state: "Loading the messages...",
+      state: "loading",
       error: undefined,
     };
 
@@ -70,8 +71,6 @@ export const generateQuiz = async (
     const google = createGoogleGenerativeAI({
       apiKey: process.env.GEMINI_API_KEY,
     });
-
-    newState.state = "Using AI to Generate Questions...";
 
     const { object } = await generateObject({
       model: google("gemini-1.5-flash"),

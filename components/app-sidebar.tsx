@@ -151,7 +151,7 @@ export function AppSidebar() {
                         }`}
                       >
                         <Link
-                          href={chat._id}
+                          href={`/chat/${chat._id}`}
                           className="flex items-center gap-3"
                         >
                           <span className="font-medium truncate">
