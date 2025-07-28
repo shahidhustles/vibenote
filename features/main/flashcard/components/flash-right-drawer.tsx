@@ -102,8 +102,8 @@ const FlashRightDrawer = ({
                   <Switch id="enableReminder" name="enableReminder" />
                 </div>
                 <p className="text-xs text-gray-500">
-                  Save a calendar reminder in your Google Calendar to review
-                  these flashcards later
+                  Save calendar reminders in your Google Calendar to review
+                  these flashcards using spaced repetition (3, 5, 7, 9 days)
                 </p>
               </div>
 

@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Id } from "@/convex/_generated/dataModel";
 import { ChevronLeft, Loader2 } from "lucide-react";
-import { generateQuiz, type QuizState } from "../actions/actions";
+import { generateQuiz, type QuizState } from "../actions/generate-quiz";
 import { useActionState, useState, useEffect } from "react";
 import QuizContainer from "./quiz-container";
 

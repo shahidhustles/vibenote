@@ -6,6 +6,7 @@ import { generateObject } from "ai";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { ConvexHttpClient } from "convex/browser";
+import { createFlashcardReminders } from "@/lib/google-calendar";
 import z from "zod";
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
@@ -39,6 +40,7 @@ export const generateFlashcards = async (
     const numFlashcards =
       parseInt(formData.get("numFlashcards") as string) || 3;
     const enableHints = formData.get("enableHints") === "on";
+    const enableReminder = formData.get("enableReminder") === "on";
     const chatId = formData.get("chatId") as Id<"chats">;
 
     if (!chatId) {
@@ -53,6 +55,10 @@ export const generateFlashcards = async (
           `${msg.role}: ${msg.content}`
       )
       .join("\n");
+
+    // Get chat title for calendar events
+    const chat = await convex.query(api.chats.getChat, { chatId });
+    const chatTitle = chat?.title || "Untitled Chat";
 
     const google = createGoogleGenerativeAI({
       apiKey: process.env.GEMINI_API_KEY,
@@ -81,6 +87,40 @@ Create flashcards that test understanding of the key concepts discussed.`;
       userId: user.id,
       flashcards: object.flashcards,
     });
+
+    // Create calendar reminders if enabled
+    if (enableReminder) {
+      try {
+        const flashcardTitle = `${chatTitle} - ${numFlashcards} Cards`;
+        const reminderSuccess = await createFlashcardReminders(
+          user.id,
+          flashcardTitle,
+          chatTitle,
+          chatId
+        );
+
+        if (!reminderSuccess) {
+          return {
+            state: "completed",
+            message:
+              "Flashcards generated successfully! However, calendar reminders could not be created. Please ensure you have connected your Google Calendar.",
+          };
+        }
+
+        return {
+          state: "completed",
+          message:
+            "Flashcards generated successfully with calendar reminders set up!",
+        };
+      } catch (error) {
+        console.error("Error creating calendar reminders:", error);
+        return {
+          state: "completed",
+          message:
+            "Flashcards generated successfully! However, calendar reminders could not be created.",
+        };
+      }
+    }
 
     return {
       state: "completed",
