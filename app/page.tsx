@@ -1,4 +1,11 @@
 import Image from "next/image";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "VibeNote.ai - Your AI Learning Companion",
+  description:
+    "Transform your learning experience with AI-powered flashcards, quizzes, and interactive study sessions.",
+};
 
 export default function Home() {
   return (

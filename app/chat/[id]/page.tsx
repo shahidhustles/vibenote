@@ -1,62 +1,43 @@
-"use client";
-
 import { Id } from "@/convex/_generated/dataModel";
-import Chatbox from "@/features/basic-functionality/components/chatbox";
-import RightDrawer from "@/features/main/quiz/components/right-drawer";
-import RightDock from "@/features/main/components/dock";
-import { useState } from "react";
-import { useParams } from "next/navigation";
-import FlashRightDrawer from "@/features/main/flashcard/components/flash-right-drawer";
+import { api } from "@/convex/_generated/api";
+import convex from "@/lib/convex";
+import type { Metadata } from "next";
+import NewChatPageClient from "../../../features/main/components/newchat-page";
 
-const NewChatPage = () => {
-  const params = useParams();
-  const chatId = params.id as Id<"chats">;
-  const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
-  const [flashcardDrawerOpen, setFlashcardDrawerOpen] = useState(false);
-  const handleQuizClick = () => {
-    setQuizDrawerOpen(true);
-  };
-
-  const handleFlashCardsClick = () => {
-    setFlashcardDrawerOpen(true);
-  };
-
-  const handleWhiteBoardClick = () => {
-    // TODO: Implement whiteboard drawer
-    console.log("Whiteboard clicked");
-  };
-
-  const handleAITutorClick = () => {
-    // TODO: Implement AI tutor drawer
-    console.log("AI Tutor clicked");
-  };
-
-  return (
-    <div className="w-full h-screen relative flex">
-      <div className="flex-1">
-        <Chatbox chatId={chatId} />
-      </div>
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-50">
-        <RightDock
-          onQuizClick={handleQuizClick}
-          onFlashCardsClick={handleFlashCardsClick}
-          onWhiteBoardClick={handleWhiteBoardClick}
-          onAITutorClick={handleAITutorClick}
-        />
-      </div>
-      <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
-        <RightDrawer
-          chatId={chatId}
-          open={quizDrawerOpen}
-          onOpenChange={setQuizDrawerOpen}
-        />
-        <FlashRightDrawer
-          chatId={chatId}
-          open={flashcardDrawerOpen}
-          onOpenChange={setFlashcardDrawerOpen}
-        />
-      </div>
-    </div>
-  );
+type Props = {
+  params: Promise<{ id: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+
+  try {
+    const chat = await convex.query(api.chats.getChat, {
+      chatId: id as Id<"chats">,
+    });
+
+    if (chat?.title) {
+      return {
+        title: `${chat.title} - VibeNote.ai`,
+        description: `Continue your learning conversation: ${chat.title}`,
+      };
+    }
+  } catch (error) {
+    console.error("Error fetching chat for metadata:", error);
+  }
+
+  // Fallback metadata
+  return {
+    title: "Chat - VibeNote.ai",
+    description: "Continue your AI-powered learning session",
+  };
+}
+
+const NewChatPage = async ({ params }: Props) => {
+  const { id } = await params;
+  const chatId = id as Id<"chats">;
+
+  return <NewChatPageClient chatId={chatId} />;
+};
+
 export default NewChatPage;

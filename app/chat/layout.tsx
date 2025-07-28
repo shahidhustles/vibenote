@@ -1,6 +1,12 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Atkinson_Hyperlegible } from "next/font/google";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Chat - VibeNote.ai",
+  description: "Chat with your AI learning companion",
+};
 
 const hyperlegible = Atkinson_Hyperlegible({
   weight: "400",
@@ -12,8 +18,6 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  
-
   return (
     <SidebarProvider className={hyperlegible.className}>
       <AppSidebar />
