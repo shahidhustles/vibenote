@@ -16,7 +16,12 @@ export const FloatingDock = ({
   desktopClassName,
   mobileClassName,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: {
+    title: string;
+    icon: React.ReactNode;
+    href: string;
+    onClick?: () => void;
+  }[];
   desktopClassName?: string;
   mobileClassName?: string;
 }) => {
@@ -32,7 +37,12 @@ const FloatingDockMobile = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: {
+    title: string;
+    icon: React.ReactNode;
+    href: string;
+    onClick?: () => void;
+  }[];
   className?: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -61,13 +71,23 @@ const FloatingDockMobile = ({
                 }}
                 transition={{ delay: (items.length - 1 - idx) * 0.05 }}
               >
-                <a
-                  href={item.href}
-                  key={item.title}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-neutral-900"
-                >
-                  <div className="h-4 w-4">{item.icon}</div>
-                </a>
+                {item.onClick ? (
+                  <button
+                    onClick={item.onClick}
+                    key={item.title}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 hover:from-purple-600 hover:via-blue-600 hover:to-cyan-600"
+                  >
+                    <div className="h-4 w-4 text-white">{item.icon}</div>
+                  </button>
+                ) : (
+                  <a
+                    href={item.href}
+                    key={item.title}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 hover:from-purple-600 hover:via-blue-600 hover:to-cyan-600"
+                  >
+                    <div className="h-4 w-4 text-white">{item.icon}</div>
+                  </a>
+                )}
               </motion.div>
             ))}
           </motion.div>
@@ -75,9 +95,9 @@ const FloatingDockMobile = ({
       </AnimatePresence>
       <button
         onClick={() => setOpen(!open)}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-neutral-800"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 hover:from-purple-600 hover:via-blue-600 hover:to-cyan-600"
       >
-        <IconLayoutNavbarCollapse className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+        <IconLayoutNavbarCollapse className="h-5 w-5 text-white" />
       </button>
     </div>
   );
@@ -87,17 +107,22 @@ const FloatingDockDesktop = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string }[];
+  items: {
+    title: string;
+    icon: React.ReactNode;
+    href: string;
+    onClick?: () => void;
+  }[];
   className?: string;
 }) => {
   let mouseX = useMotionValue(Infinity);
   return (
     <motion.div
-      onMouseMove={(e) => mouseX.set(e.pageX)}
+      onMouseMove={(e) => mouseX.set(e.pageY)}
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto hidden h-16 items-end gap-4 rounded-2xl bg-gray-50 px-4 pb-3 md:flex dark:bg-neutral-900",
-        className,
+        "mx-auto hidden w-16 flex-col items-center gap-4 rounded-2xl bg-gradient-to-b from-purple-500 via-blue-500 to-cyan-500 py-4 px-3 md:flex shadow-lg",
+        className
       )}
     >
       {items.map((item) => (
@@ -112,18 +137,20 @@ function IconContainer({
   title,
   icon,
   href,
+  onClick,
 }: {
   mouseX: MotionValue;
   title: string;
   icon: React.ReactNode;
   href: string;
+  onClick?: () => void;
 }) {
   let ref = useRef<HTMLDivElement>(null);
 
   let distance = useTransform(mouseX, (val) => {
-    let bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
+    let bounds = ref.current?.getBoundingClientRect() ?? { y: 0, height: 0 };
 
-    return val - bounds.x - bounds.width / 2;
+    return val - bounds.y - bounds.height / 2;
   });
 
   let widthTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40]);
@@ -133,7 +160,7 @@ function IconContainer({
   let heightTransformIcon = useTransform(
     distance,
     [-150, 0, 150],
-    [20, 40, 20],
+    [20, 40, 20]
   );
 
   let width = useSpring(widthTransform, {
@@ -160,14 +187,24 @@ function IconContainer({
 
   const [hovered, setHovered] = useState(false);
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  const Component = onClick ? "button" : "a";
+  const componentProps = onClick ? { onClick: handleClick } : { href };
+
   return (
-    <a href={href}>
+    <Component {...componentProps}>
       <motion.div
         ref={ref}
         style={{ width, height }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative flex aspect-square items-center justify-center rounded-full bg-gray-200 dark:bg-neutral-800"
+        className="relative flex aspect-square items-center justify-center rounded-full bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-sm"
       >
         <AnimatePresence>
           {hovered && (
@@ -183,11 +220,11 @@ function IconContainer({
         </AnimatePresence>
         <motion.div
           style={{ width: widthIcon, height: heightIcon }}
-          className="flex items-center justify-center"
+          className="flex items-center justify-center text-white"
         >
           {icon}
         </motion.div>
       </motion.div>
-    </a>
+    </Component>
   );
 }

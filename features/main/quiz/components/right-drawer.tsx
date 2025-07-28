@@ -15,12 +15,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Id } from "@/convex/_generated/dataModel";
 import { ChevronLeft, Loader2 } from "lucide-react";
-import { generateQuiz, type QuizState } from "../quiz/actions/actions";
+import { generateQuiz, type QuizState } from "../actions/actions";
 import { useActionState, useState, useEffect } from "react";
-import QuizContainer from "../quiz/components/quiz-container";
+import QuizContainer from "./quiz-container";
 
 interface RightDrawerProps {
   chatId: Id<"chats">;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const initialState: QuizState = {
@@ -29,7 +31,7 @@ const initialState: QuizState = {
   quiz: [],
 };
 
-const RightDrawer = ({ chatId }: RightDrawerProps) => {
+const RightDrawer = ({ chatId, open, onOpenChange }: RightDrawerProps) => {
   const [state, formAction, isPending] = useActionState(
     generateQuiz,
     initialState
@@ -91,17 +93,20 @@ const RightDrawer = ({ chatId }: RightDrawerProps) => {
 
   return (
     <div className="flex-1">
-      <Drawer direction="right">
-        <DrawerTrigger asChild>
-          <Button
-            variant="outline"
-            size="sm"
-            className="relative right-0 ml-auto z-50 p-2 h-12 w-8 rounded-l-lg 
-            rounded-r-none border-r-0 bg-white shadow-lg hover:bg-gray-50"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        </DrawerTrigger>
+      <Drawer direction="right" open={open} onOpenChange={onOpenChange}>
+        {/* Only show trigger button if not controlled externally */}
+        {!open && !onOpenChange && (
+          <DrawerTrigger asChild>
+            <Button
+              variant="outline"
+              size="sm"
+              className="relative right-0 ml-auto z-50 p-2 h-12 w-8 rounded-l-lg 
+              rounded-r-none border-r-0 bg-white shadow-lg hover:bg-gray-50"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </DrawerTrigger>
+        )}
         <DrawerContent className="h-full w-80 mt-0 rounded-none">
           <DrawerHeader>
             <DrawerTitle>Quiz Section</DrawerTitle>
@@ -186,9 +191,6 @@ const RightDrawer = ({ chatId }: RightDrawerProps) => {
                 Generate New Quiz
               </Button>
             )}
-            <Button className="bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 text-white">
-              Generate Flash Cards
-            </Button>
             <DrawerClose asChild>
               <Button variant="outline">Close</Button>
             </DrawerClose>

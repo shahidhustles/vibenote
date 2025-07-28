@@ -1,18 +1,55 @@
+"use client";
+
 import { Id } from "@/convex/_generated/dataModel";
 import Chatbox from "@/features/basic-functionality/components/chatbox";
-import RightDrawer from "@/features/main/components/right-drawer";
+import RightDrawer from "@/features/main/quiz/components/right-drawer";
+import RightDock from "@/features/main/components/dock";
+import { useState } from "react";
+import { useParams } from "next/navigation";
 
-const NewChatPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params;
-  const chatId = id as Id<"chats">;
+const NewChatPage = () => {
+  const params = useParams();
+  const chatId = params.id as Id<"chats">;
+  const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
+
+  const handleQuizClick = () => {
+    setQuizDrawerOpen(true);
+  };
+
+  const handleFlashCardsClick = () => {
+    // TODO: Implement flash cards drawer
+    console.log("Flash Cards clicked");
+  };
+
+  const handleWhiteBoardClick = () => {
+    // TODO: Implement whiteboard drawer
+    console.log("Whiteboard clicked");
+  };
+
+  const handleAITutorClick = () => {
+    // TODO: Implement AI tutor drawer
+    console.log("AI Tutor clicked");
+  };
 
   return (
     <div className="w-full h-screen relative flex">
       <div className="flex-1">
         <Chatbox chatId={chatId} />
       </div>
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-50">
+        <RightDock
+          onQuizClick={handleQuizClick}
+          onFlashCardsClick={handleFlashCardsClick}
+          onWhiteBoardClick={handleWhiteBoardClick}
+          onAITutorClick={handleAITutorClick}
+        />
+      </div>
       <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
-        <RightDrawer chatId={chatId} />
+        <RightDrawer
+          chatId={chatId}
+          open={quizDrawerOpen}
+          onOpenChange={setQuizDrawerOpen}
+        />
       </div>
     </div>
   );
