@@ -15,8 +15,8 @@ export default defineSchema({
     userId: v.string(),
     role: v.union(v.literal("user"), v.literal("assistant")),
     content: v.string(),
-    // For image support (choose whether its cloudinary or convex itself. )
-    imageUrl: v.optional(v.string()),
+    // For image support - can be either a URL string or storage ID
+    imageUrl: v.optional(v.union(v.string(), v.id("_storage"))),
     createdAt: v.number(),
   })
     .index("by_chatId", ["chatId"])

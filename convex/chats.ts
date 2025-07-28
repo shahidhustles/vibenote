@@ -92,7 +92,7 @@ export const addMessage = mutation({
     userId: v.string(),
     role: v.union(v.literal("user"), v.literal("assistant")),
     content: v.string(),
-    imageUrl: v.optional(v.string()),
+    imageUrl: v.optional(v.union(v.string(), v.id("_storage"))),
   },
   handler: async (ctx, args) => {
     const messageId = await ctx.db.insert("messages", {
@@ -131,6 +131,21 @@ export const updateMessage = mutation({
   handler: async (ctx, args) => {
     await ctx.db.patch(args.messageId, {
       content: args.content,
+    });
+  },
+});
+
+// Update a message with image URL
+export const updateMessageWithImage = mutation({
+  args: {
+    messageId: v.id("messages"),
+    content: v.string(),
+    imageUrl: v.union(v.string(), v.id("_storage")),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.messageId, {
+      content: args.content,
+      imageUrl: args.imageUrl,
     });
   },
 });
@@ -268,7 +283,6 @@ export const getRecentChats = query({
   },
 });
 
-
 // Bulk delete messages (useful for clearing chat history)
 export const clearChatHistory = mutation({
   args: {
@@ -285,5 +299,47 @@ export const clearChatHistory = mutation({
     }
 
     return { deletedCount: messages.length };
+  },
+});
+
+// ========================
+// FILE STORAGE OPERATIONS
+// ========================
+
+// Generate upload URL for file uploads
+export const generateUploadUrl = mutation({
+  handler: async (ctx) => {
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+// Save image with storage ID
+export const saveImageMessage = mutation({
+  args: {
+    chatId: v.id("chats"),
+    userId: v.string(),
+    content: v.string(),
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const messageId = await ctx.db.insert("messages", {
+      chatId: args.chatId,
+      userId: args.userId,
+      role: "user",
+      content: args.content,
+      imageUrl: args.storageId,
+      createdAt: Date.now(),
+    });
+    return messageId;
+  },
+});
+
+// Get file URL from storage ID
+export const getImageUrl = query({
+  args: {
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.storage.getUrl(args.storageId);
   },
 });

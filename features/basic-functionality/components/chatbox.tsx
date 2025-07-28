@@ -11,25 +11,57 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import Image from "next/image";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Component to display image from Convex storage
+function ConvexImage({ storageId }: { storageId: Id<"_storage"> }) {
+  const imageUrl = useQuery(api.chats.getImageUrl, { storageId });
+
+  if (!imageUrl) {
+    return <div className="w-32 h-32 bg-gray-200 rounded animate-pulse" />;
+  }
+
+  return (
+    <Image
+      src={imageUrl}
+      alt="Uploaded image"
+      width={200}
+      height={200}
+      className="max-w-xs max-h-48 object-cover rounded-lg mt-2"
+    />
+  );
+}
+
 type ChatBoxType = {
   chatId: Id<"chats">;
+};
+
+// Extended message type to include imageUrl
+type ExtendedMessage = {
+  id: string;
+  role: string;
+  content: string;
+  imageUrl?: string | Id<"_storage">;
+  data?: {
+    imageUrl?: string; // Base64 image data for immediate display
+  };
 };
 
 export default function Chatbox({ chatId }: ChatBoxType) {
   const persistedMessages = useQuery(api.chats.getChatMessages, { chatId });
   const isLoadingMessages = persistedMessages === undefined;
 
-  // Transform Convex messages to useChat format
+  // Transform Convex messages to useChat format with image URLs
   const initialMessages =
     persistedMessages?.map((msg) => ({
       id: msg._id,
-      role: msg.role,
+      role: msg.role as "user" | "assistant",
       content: msg.content,
+      imageUrl: msg.imageUrl, // Keep the storage ID or URL for display
     })) || [];
 
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
@@ -40,13 +72,50 @@ export default function Chatbox({ chatId }: ChatBoxType) {
       initialMessages,
     });
   const [selectedModel, setSelectedModel] = useState("Gemini 2.5 Flash");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target?.result as string;
+        setSelectedImage(base64);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImageFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSubmitWithImage = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (selectedImage) {
+      handleSubmit(e, {
+        data: { imageUrl: selectedImage },
+      });
+      // Clear image after sending
+      removeImage();
+    } else {
+      handleSubmit(e);
+    }
+  };
 
   const models = [
     { value: "gpt-4", label: "GPT-4" },
@@ -60,6 +129,27 @@ export default function Chatbox({ chatId }: ChatBoxType) {
       e.preventDefault();
       if (input.trim() && formRef.current) {
         formRef.current.requestSubmit();
+      }
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData?.items;
+    if (items) {
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) {
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const base64 = event.target?.result as string;
+              setSelectedImage(base64);
+            };
+            reader.readAsDataURL(file);
+          }
+        }
       }
     }
   };
@@ -105,9 +195,9 @@ export default function Chatbox({ chatId }: ChatBoxType) {
 
             {/* Description */}
             <p className="text-gray-600 max-w-lg leading-relaxed mb-8 text-center">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation.
+              Start an interactive learning session by asking questions,
+              exploring topics, or getting explanations on any subject. Your AI
+              tutor is ready to help you learn at your own pace.
             </p>
           </div>
         )}
@@ -130,7 +220,36 @@ export default function Chatbox({ chatId }: ChatBoxType) {
                   }`}
                 >
                   {message.role === "user" ? (
-                    <p className="text-md leading-relaxed">{message.content}</p>
+                    <div>
+                      <p className="text-md leading-relaxed">
+                        {message.content}
+                      </p>
+                      {/* Display image from immediate data (base64) */}
+                      {(message as ExtendedMessage).data?.imageUrl && (
+                        <Image
+                          src={(message as ExtendedMessage).data!.imageUrl!}
+                          alt="Uploaded image"
+                          width={200}
+                          height={200}
+                          className="max-w-xs max-h-48 object-cover rounded-lg mt-2"
+                        />
+                      )}
+                      {/* Display image from Convex storage if it exists and no immediate data */}
+                      {!(message as ExtendedMessage).data?.imageUrl &&
+                        (message as ExtendedMessage).imageUrl &&
+                        typeof (message as ExtendedMessage).imageUrl ===
+                          "string" &&
+                        (message as ExtendedMessage).imageUrl!.startsWith(
+                          "k"
+                        ) && (
+                          <ConvexImage
+                            storageId={
+                              (message as ExtendedMessage)
+                                .imageUrl as Id<"_storage">
+                            }
+                          />
+                        )}
+                    </div>
                   ) : (
                     <div className="text-md leading-relaxed prose prose-sm max-w-none">
                       <ReactMarkdown
@@ -227,20 +346,59 @@ export default function Chatbox({ chatId }: ChatBoxType) {
       {/* Chat Input Section - Always shown */}
       <div className="px-4 pb-8">
         <div className="max-w-4xl mx-auto">
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+          {/* Image Preview */}
+          {selectedImage && (
+            <div className="mb-4 p-2 border border-gray-200 rounded-lg bg-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Image
+                    src={selectedImage}
+                    alt="Preview"
+                    width={64}
+                    height={64}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                  <span className="text-sm text-gray-600">
+                    {imageFile?.name || "Image attached"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          )}
+
+          <form
+            ref={formRef}
+            onSubmit={handleSubmitWithImage}
+            className="space-y-4"
+          >
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageUpload}
+              accept="image/*"
+              className="hidden"
+            />
             <div className="relative">
               <textarea
                 name="prompt"
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
+                onPaste={handlePaste}
                 disabled={isLoading}
                 placeholder={
                   isLoading
                     ? "AI is responding..."
                     : messages.length === 0
-                      ? "Ask me anything to start learning..."
-                      : "Continue the conversation..."
+                      ? "Ask me anything to start learning... (Ctrl+V to paste images)"
+                      : "Continue the conversation... (Ctrl+V to paste images)"
                 }
                 className="w-full h-32 p-4 pr-16 pt-12 rounded-xl border border-gray-200 bg-white shadow-lg resize-none text-base placeholder:text-gray-400 focus:border-gray-300 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
@@ -277,6 +435,7 @@ export default function Chatbox({ chatId }: ChatBoxType) {
                 type="button"
                 variant="ghost"
                 size="icon"
+                onClick={() => fileInputRef.current?.click()}
                 className="absolute bottom-3 right-12 w-8 h-8 hover:bg-gray-100"
               >
                 <Paperclip className="w-4 h-4 text-gray-500" />

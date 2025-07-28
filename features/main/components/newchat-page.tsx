@@ -6,6 +6,7 @@ import RightDrawer from "@/features/main/quiz/components/right-drawer";
 import RightDock from "@/features/main/components/dock";
 import { useState } from "react";
 import FlashRightDrawer from "@/features/main/flashcard/components/flash-right-drawer";
+import WhiteboardDrawer from "../whiteboard/components/whiteboard-drawer";
 
 type NewChatPageClientProps = {
   chatId: Id<"chats">;
@@ -14,6 +15,7 @@ type NewChatPageClientProps = {
 const NewChatPageClient = ({ chatId }: NewChatPageClientProps) => {
   const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
   const [flashcardDrawerOpen, setFlashcardDrawerOpen] = useState(false);
+  const [whiteBoardOpen, setWhiteboardOpen] = useState(false);
 
   const handleQuizClick = () => {
     setQuizDrawerOpen(true);
@@ -24,8 +26,7 @@ const NewChatPageClient = ({ chatId }: NewChatPageClientProps) => {
   };
 
   const handleWhiteBoardClick = () => {
-    // TODO: Implement whiteboard drawer
-    console.log("Whiteboard clicked");
+    setWhiteboardOpen(true);
   };
 
   const handleAITutorClick = () => {
@@ -57,6 +58,7 @@ const NewChatPageClient = ({ chatId }: NewChatPageClientProps) => {
           open={flashcardDrawerOpen}
           onOpenChange={setFlashcardDrawerOpen}
         />
+        <WhiteboardDrawer chatId={chatId} open={whiteBoardOpen} onOpenChange={setWhiteboardOpen} />
       </div>
     </div>
   );
