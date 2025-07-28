@@ -6,19 +6,19 @@ import RightDrawer from "@/features/main/quiz/components/right-drawer";
 import RightDock from "@/features/main/components/dock";
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import FlashRightDrawer from "@/features/main/flashcard/components/flash-right-drawer";
 
 const NewChatPage = () => {
   const params = useParams();
   const chatId = params.id as Id<"chats">;
   const [quizDrawerOpen, setQuizDrawerOpen] = useState(false);
-
+  const [flashcardDrawerOpen, setFlashcardDrawerOpen] = useState(false);
   const handleQuizClick = () => {
     setQuizDrawerOpen(true);
   };
 
   const handleFlashCardsClick = () => {
-    // TODO: Implement flash cards drawer
-    console.log("Flash Cards clicked");
+    setFlashcardDrawerOpen(true);
   };
 
   const handleWhiteBoardClick = () => {
@@ -49,6 +49,11 @@ const NewChatPage = () => {
           chatId={chatId}
           open={quizDrawerOpen}
           onOpenChange={setQuizDrawerOpen}
+        />
+        <FlashRightDrawer
+          chatId={chatId}
+          open={flashcardDrawerOpen}
+          onOpenChange={setFlashcardDrawerOpen}
         />
       </div>
     </div>

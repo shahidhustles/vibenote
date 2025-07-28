@@ -198,9 +198,13 @@ export function AppSidebar() {
                 side="right"
                 className="w-[--radix-popper-anchor-width]"
               >
-                <DropdownMenuItem className="h-10 text-base">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <SignOutButton />
+                <DropdownMenuItem className="h-10 text-base" asChild>
+                  <SignOutButton>
+                    <div className="flex items-center w-full">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sign out</span>
+                    </div>
+                  </SignOutButton>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

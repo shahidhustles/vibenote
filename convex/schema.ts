@@ -21,4 +21,21 @@ export default defineSchema({
   })
     .index("by_chatId", ["chatId"])
     .index("by_userId", ["userId"]),
+
+  // Flashcard decks (one per chat)
+  flashcardDecks: defineTable({
+    chatId: v.id("chats"),
+    userId: v.string(),
+    flashcards: v.array(
+      v.object({
+        question: v.string(),
+        answer: v.string(),
+        hint: v.optional(v.string()),
+      })
+    ),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_chatId", ["chatId"])
+    .index("by_userId", ["userId"]),
 });

@@ -135,3 +135,50 @@
     --sidebar-ring: oklch(0.439 0 0);
   }
 }
+
+/* Custom flashcard styles */
+.flashcard-wrapper {
+  min-height: 400px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.flashcard {
+  border-radius: 16px !important;
+}
+
+.flashcard__front,
+.flashcard__back {
+  border-radius: 16px !important;
+  border: none !important;
+}
+
+/* Custom styles for progress bar and controls in dark mode */
+.flashcard-array__progress-bar {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.flashcard-array__progress-bar__fill {
+  background: linear-gradient(to right, #a855f7, #3b82f6, #06b6d4) !important;
+}
+
+.flashcard-array__controls button {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-radius: 8px !important;
+}
+
+.flashcard-array__controls button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.flashcard-array__controls .flashcard-array__counter {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Custom 3D flip animation utilities */
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
