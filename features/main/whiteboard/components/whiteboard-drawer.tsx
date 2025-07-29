@@ -15,15 +15,7 @@ type WhiteboardDrawerType = {
 };
 
 const WhiteboardDrawer = forwardRef<WhiteboardRef, WhiteboardDrawerType>(
-  (
-    {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      chatId,
-      open,
-      onOpenChange,
-    },
-    ref
-  ) => {
+  ({ chatId, open, onOpenChange }, ref) => {
     return (
       <Drawer open={open} onOpenChange={onOpenChange} direction="right">
         <DrawerContent className="!w-[30vw] h-full max-w-none sm:!max-w-none">
@@ -31,7 +23,11 @@ const WhiteboardDrawer = forwardRef<WhiteboardRef, WhiteboardDrawerType>(
             <DrawerTitle>Whiteboard</DrawerTitle>
           </DrawerHeader>
           <div className="flex-1 overflow-hidden">
-            <Whiteboard ref={ref} />
+            <Whiteboard
+              ref={ref}
+              chatId={chatId}
+              onCaptureSuccess={() => onOpenChange(false)}
+            />
           </div>
         </DrawerContent>
       </Drawer>
