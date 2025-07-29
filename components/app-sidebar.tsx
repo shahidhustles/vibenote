@@ -76,7 +76,7 @@ export function AppSidebar() {
     {
       title: "Library",
       icon: Library,
-      url: "#",
+      url: "/library",
     },
     {
       title: "Fibonacci Videos",

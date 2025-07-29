@@ -38,4 +38,25 @@ export default defineSchema({
   })
     .index("by_chatId", ["chatId"])
     .index("by_userId", ["userId"]),
+
+  // Documents uploaded by users
+  documents: defineTable({
+    userId: v.string(),
+    filename: v.string(),
+    originalName: v.string(),
+    fileType: v.string(),
+    fileSize: v.number(),
+    storageId: v.id("_storage"),
+    fileUrl: v.string(),
+    uploadedAt: v.number(),
+    ingestStatus: v.union(
+      v.literal("pending"),
+      v.literal("processing"),
+      v.literal("completed"),
+      v.literal("failed")
+    ),
+    ingestError: v.optional(v.string()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_ingestStatus", ["ingestStatus"]),
 });
