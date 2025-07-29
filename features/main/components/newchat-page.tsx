@@ -29,11 +29,6 @@ const NewChatPageClient = ({ chatId }: NewChatPageClientProps) => {
     setWhiteboardOpen(true);
   };
 
-  const handleAITutorClick = () => {
-    // TODO: Implement AI tutor drawer
-    console.log("AI Tutor clicked");
-  };
-
   return (
     <div className="w-full h-screen relative flex">
       <div className="flex-1">
@@ -44,7 +39,6 @@ const NewChatPageClient = ({ chatId }: NewChatPageClientProps) => {
           onQuizClick={handleQuizClick}
           onFlashCardsClick={handleFlashCardsClick}
           onWhiteBoardClick={handleWhiteBoardClick}
-          onAITutorClick={handleAITutorClick}
         />
       </div>
       <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
@@ -58,7 +52,11 @@ const NewChatPageClient = ({ chatId }: NewChatPageClientProps) => {
           open={flashcardDrawerOpen}
           onOpenChange={setFlashcardDrawerOpen}
         />
-        <WhiteboardDrawer chatId={chatId} open={whiteBoardOpen} onOpenChange={setWhiteboardOpen} />
+        <WhiteboardDrawer
+          chatId={chatId}
+          open={whiteBoardOpen}
+          onOpenChange={setWhiteboardOpen}
+        />
       </div>
     </div>
   );

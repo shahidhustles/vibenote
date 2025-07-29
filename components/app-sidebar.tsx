@@ -79,9 +79,9 @@ export function AppSidebar() {
       url: "/library",
     },
     {
-      title: "Fibonacci Videos",
+      title: "AI Tutor Videos",
       icon: DraftingCompass,
-      url: "#",
+      url: "/fibonacci-videos",
     },
   ];
   return (

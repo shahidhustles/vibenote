@@ -16,6 +16,7 @@ import type {
 import type * as chats from "../chats.js";
 import type * as documents from "../documents.js";
 import type * as flashcards from "../flashcards.js";
+import type * as videos from "../videos.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   chats: typeof chats;
   documents: typeof documents;
   flashcards: typeof flashcards;
+  videos: typeof videos;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

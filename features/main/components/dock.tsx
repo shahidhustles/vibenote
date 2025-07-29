@@ -1,18 +1,16 @@
 import { FloatingDock } from "@/components/ui/floating-dock";
-import { Bot, Presentation, SquareStack, Brain } from "lucide-react";
+import { Presentation, SquareStack, Brain } from "lucide-react";
 
 interface RightDockProps {
   onQuizClick: () => void;
   onFlashCardsClick: () => void;
   onWhiteBoardClick: () => void;
-  onAITutorClick: () => void;
 }
 
 const RightDock = ({
   onQuizClick,
   onFlashCardsClick,
   onWhiteBoardClick,
-  onAITutorClick,
 }: RightDockProps) => {
   const items = [
     {
@@ -32,12 +30,6 @@ const RightDock = ({
       icon: <Presentation />,
       href: "#",
       onClick: onWhiteBoardClick,
-    },
-    {
-      title: "AI Tutor",
-      icon: <Bot />,
-      href: "#",
-      onClick: onAITutorClick,
     },
   ];
   return (

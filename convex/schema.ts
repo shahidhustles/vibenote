@@ -61,4 +61,22 @@ export default defineSchema({
   })
     .index("by_userId", ["userId"])
     .index("by_ingestStatus", ["ingestStatus"]),
+
+  // AI Tutor Videos
+  videos: defineTable({
+    userId: v.string(),
+    topic: v.string(),
+    videoUrl: v.string(),
+    generationStatus: v.union(
+      v.literal("pending"),
+      v.literal("generating"),
+      v.literal("completed"),
+      v.literal("failed")
+    ),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_status", ["generationStatus"]),
 });

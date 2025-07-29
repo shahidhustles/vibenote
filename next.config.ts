@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
   },
   // Add webpack configuration to dedupe TLDraw packages
   webpack: (config) => {
+    // Ensure single instance of tldraw packages
     config.resolve.alias = {
       ...config.resolve.alias,
       "@tldraw/utils": require.resolve("@tldraw/utils"),
@@ -35,6 +36,7 @@ const nextConfig: NextConfig = {
       "@tldraw/editor": require.resolve("@tldraw/editor"),
       tldraw: require.resolve("tldraw"),
     };
+
     return config;
   },
 };

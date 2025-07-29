@@ -5,8 +5,21 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import Whiteboard, { WhiteboardRef } from "./whiteboard";
 import { forwardRef } from "react";
+import dynamic from "next/dynamic";
+
+// Import the type separately for TypeScript
+import type { WhiteboardRef } from "./whiteboard";
+
+// Dynamically import the Whiteboard component to prevent SSR issues
+const Whiteboard = dynamic(() => import("./whiteboard"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-full">
+      Loading whiteboard...
+    </div>
+  ),
+});
 
 type WhiteboardDrawerType = {
   chatId: Id<"chats">;
