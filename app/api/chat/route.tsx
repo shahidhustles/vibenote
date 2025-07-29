@@ -106,7 +106,7 @@ export async function POST(req: Request) {
   if (userMessage) {
     // Clean the content by removing image attachment information for storage
     let cleanContent: string;
-    if (typeof userMessage.content === 'string') {
+    if (typeof userMessage.content === "string") {
       cleanContent = userMessage.content.replace(
         /\n\n\[Images attached:.*?\]$/,
         ""
@@ -249,12 +249,16 @@ Be encouraging, clear, and focus on helping students truly understand concepts r
             // Update the user message with the storage ID
             await convex.mutation(api.chats.updateMessageWithImage, {
               messageId: userMessageId,
-              content: typeof userMessage.content === 'string' 
-                ? userMessage.content.replace(/\n\n\[Images attached:.*?\]$/, "")
-                : userMessage.content
-                    .filter((item) => item.type === "text")
-                    .map((item) => item.text || "")
-                    .join(" "),
+              content:
+                typeof userMessage.content === "string"
+                  ? userMessage.content.replace(
+                      /\n\n\[Images attached:.*?\]$/,
+                      ""
+                    )
+                  : userMessage.content
+                      .filter((item) => item.type === "text")
+                      .map((item) => item.text || "")
+                      .join(" "),
               imageUrl: storageId,
             });
           } catch (error) {
