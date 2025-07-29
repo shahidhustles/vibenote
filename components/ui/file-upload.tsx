@@ -135,8 +135,8 @@ export const FileUpload = forwardRef<
     multiple: false,
     noClick: true,
     onDrop: handleFileChange,
-    onDropRejected: (error: any) => {
-      console.log(error);
+    onDropRejected: (errors) => {
+      console.log(errors);
     },
   });
 

@@ -17,6 +17,8 @@ export default defineSchema({
     content: v.string(),
     // For image support - can be either a URL string or storage ID
     imageUrl: v.optional(v.union(v.string(), v.id("_storage"))),
+    // For Morphik library images
+    morphikImages: v.optional(v.array(v.string())),
     createdAt: v.number(),
   })
     .index("by_chatId", ["chatId"])

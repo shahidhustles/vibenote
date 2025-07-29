@@ -93,6 +93,7 @@ export const addMessage = mutation({
     role: v.union(v.literal("user"), v.literal("assistant")),
     content: v.string(),
     imageUrl: v.optional(v.union(v.string(), v.id("_storage"))),
+    morphikImages: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const messageId = await ctx.db.insert("messages", {
@@ -101,6 +102,7 @@ export const addMessage = mutation({
       role: args.role,
       content: args.content,
       imageUrl: args.imageUrl,
+      morphikImages: args.morphikImages,
       createdAt: Date.now(),
     });
     return messageId;
