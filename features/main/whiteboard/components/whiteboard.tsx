@@ -1,5 +1,4 @@
 import { Tldraw, Editor, exportToBlob } from "tldraw";
-import "tldraw/tldraw.css";
 import { useRef, forwardRef, useImperativeHandle } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera } from "lucide-react";

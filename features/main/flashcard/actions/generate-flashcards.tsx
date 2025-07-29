@@ -1,6 +1,8 @@
 "use server";
 
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+// import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
+
 import { currentUser } from "@clerk/nextjs/server";
 import { generateObject } from "ai";
 import { api } from "@/convex/_generated/api";
@@ -60,8 +62,8 @@ export const generateFlashcards = async (
     const chat = await convex.query(api.chats.getChat, { chatId });
     const chatTitle = chat?.title || "Untitled Chat";
 
-    const google = createGoogleGenerativeAI({
-      apiKey: process.env.GEMINI_API_KEY,
+    const groq = createGroq({
+      apiKey: process.env.GROQ_API_KEY,
     });
 
     const prompt = `Based on the following chat conversation, generate ${numFlashcards} educational flashcards. ${
@@ -76,7 +78,8 @@ ${chatContext}
 Create flashcards that test understanding of the key concepts discussed.`;
 
     const { object } = await generateObject({
-      model: google("gemini-1.5-flash"),
+      // model: google("gemini-1.5-flash"),
+      model: groq("llama-3.1-8b-instant"),
       schema: flashcardSchema,
       prompt,
     });

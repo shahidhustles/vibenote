@@ -1,6 +1,6 @@
 "use server";
-
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
+// import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import z from "zod";
 import { convex } from "@/lib/convex";
@@ -68,12 +68,17 @@ export const generateQuiz = async (
       .map((msg) => `${msg.role}: ${msg.content}`)
       .join("\n");
 
-    const google = createGoogleGenerativeAI({
-      apiKey: process.env.GEMINI_API_KEY,
+    // const google = createGoogleGenerativeAI({
+    //   apiKey: process.env.GEMINI_API_KEY,
+    // });
+
+    const groq = createGroq({
+      apiKey: process.env.GROQ_API_KEY,
     });
 
     const { object } = await generateObject({
-      model: google("gemini-1.5-flash"),
+      // model: google("gemini-1.5-flash"),
+      model : groq("llama-3.1-8b-instant"),
       prompt: `Based on the following chat conversation, generate a quiz titled "${title}" with ${questions} questions. 
       
       Chat Context:
